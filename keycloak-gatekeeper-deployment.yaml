@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+    traefik.frontend.rule: Host:service1.lab.com
+    traefik.port: "3000"
+    traefik.protocol: http
+  creationTimestamp: null
+  labels:
+    io.kompose.service: keycloak-gatekeeper
+  name: keycloak-gatekeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: keycloak-gatekeeper
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+        traefik.frontend.rule: Host:service1.lab.com
+        traefik.port: "3000"
+        traefik.protocol: http
+      creationTimestamp: null
+      labels:
+        io.kompose.network/keycloaktraefiktutorial_service_net: "true"
+        io.kompose.service: keycloak-gatekeeper
+    spec:
+      containers:
+      - command:
+        - /opt/keycloak-gatekeeper
+        - --config=/etc/keycloak-gatekeeper.conf
+        image: keycloak/keycloak-gatekeeper:7.0.0
+        imagePullPolicy: ""
+        name: keycloak-gatekeeper
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/keycloak-gatekeeper.conf
+          name: keycloak-gatekeeper-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: keycloak-gatekeeper-claim0
+        persistentVolumeClaim:
+          claimName: keycloak-gatekeeper-claim0
+status: {}
