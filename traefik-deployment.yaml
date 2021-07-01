@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+    traefik.enable: "true"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: traefik
+  name: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: traefik
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+        traefik.enable: "true"
+      creationTimestamp: null
+      labels:
+        io.kompose.network/keycloaktraefiktutorial_auth_net: "true"
+        io.kompose.network/keycloaktraefiktutorial_service_net: "true"
+        io.kompose.service: traefik
+    spec:
+      containers:
+      - args:
+        - --logLevel=DEBUG
+        - --api.dashboard=true
+        - --InsecureSkipVerify=true
+        - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
+        - --entryPoints=Name:https Address::443 TLS
+        - --defaultentrypoints=http,https
+        - --docker
+        - --docker.exposedbydefault=true
+        - --docker.watch=true
+        - --docker.swarmmode=false
+        - --docker.endpoint=unix:///var/run/docker.sock
+        env:
+        - name: TZ
+          value: Asia/Jakarta
+        image: traefik:v1.7.4-alpine
+        imagePullPolicy: ""
+        name: traefik
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: traefik-claim0
+      hostname: traefik-lab-com
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: traefik-claim0
+        persistentVolumeClaim:
+          claimName: traefik-claim0
+status: {}
